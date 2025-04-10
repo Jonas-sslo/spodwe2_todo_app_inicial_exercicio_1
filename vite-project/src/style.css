@@ -32,10 +32,20 @@ li {
   justify-content: space-between;
   align-items: center;
 }
-.btn-container {
+.filters {
   display: flex;
-  justify-content: center;
-  margin-left: 5px;
+  justify-content: space-between;
+  margin: 10px 0;
+}
+.filters a {
+  color: white;
+  text-decoration: none;
+  padding: 5px;
+  transition: color 0.3s;
+}
+.filters a.active {
+  color: #d62dd6;
+  font-weight: bold;
 }
 button {
   background: purple;
@@ -44,6 +54,11 @@ button {
   padding: 5px 8px;
   border-radius: 3px;
   cursor: pointer;
+}
+button#btn {
+  display: block;
+  margin: 10px auto;
+  width: 150px;
 }
 button:hover {
   background: #d62dd6;

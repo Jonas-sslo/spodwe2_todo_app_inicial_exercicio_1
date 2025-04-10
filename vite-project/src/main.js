@@ -1,73 +1,99 @@
-let todos = []; // tarefas
+const todos = [];
+const TodoFilter = {
+  ALL: "all",
+  DONE: "done",
+  PENDING: "pending",
+};
 
-document.getElementById("btn").addEventListener("click", addTodo);
-
-document.getElementById("todo").addEventListener("keypress", (e) => {
-  if (e.key === "Enter") {
-    addTodo();
-  }
-});
+const todoInput = document.getElementById("todo");
+const addButton = document.getElementById("btn");
+const allFilter = document.getElementById("all");
+const doneFilter = document.getElementById("done");
+const pendingFilter = document.getElementById("pending");
+const todoList = document.getElementById("todo-list");
 
 function addTodo() {
-  const input = document.getElementById("todo");
-  const todoContent = input.value.trim();
+  const todoText = todoInput.value.trim();
   
-  if (todoContent) {
-    const todo = {
-      id: todos.length + 1, 
-      content: todoContent,
-      completed: false
+  if (todoText) {
+    const newTodo = {
+      id: Date.now(),
+      text: todoText,
+      done: false
     };
-
-    todos.push(todo);
-    updateTodos();
-    input.value = "";
+    todos.push(newTodo);
+    todoInput.value = "";
+    renderTodos();
   }
 }
 
-function checkTodo(todoId) {
+function toggleTodoStatus(todoId) {
   const todo = todos.find(todo => todo.id === todoId);
-  
   if (todo) {
-      todo.completed = !todo.completed;
-      updateTodos();
+      todo.done = !todo.done;
+      renderTodos();
   }
 }
 
-function deleteTodo(id) {
-  todos = todos.filter(todo => todo.id !== id);
-  updateTodos();
-}
-
-function updateTodos() {
-  const list = document.getElementById("todo-list");
-  list.innerHTML = "";
-
-  todos.forEach(todo => {
-    const item = document.createElement("li");
-    item.id = todo.id;
+function renderTodos(filter = TodoFilter.ALL) {
+  todoList.innerHTML = "";
+  const filteredTodos = todos.filter(todo => {
+    if (filter === TodoFilter.ALL) return true;
+    if (filter === TodoFilter.DONE) return todo.done;
+    if (filter === TodoFilter.PENDING) return !todo.done;
+  });
+  if (filteredTodos.length === 0) {
+    const emptyMessage = document.createElement("li");
+    emptyMessage.textContent = "Nenhuma tarefa encontrada";
+    todoList.appendChild(emptyMessage);
+    return;
+  }
+  filteredTodos.forEach(todo => {
+    const todoItem = document.createElement("li");
     
     const todoText = document.createElement("span");
-    todoText.textContent = todo.content;
-    
-    if (todo.completed) {
+    todoText.textContent = todo.text;
+    if (todo.done) {
       todoText.style.textDecoration = "line-through";
-    } else {
-      todoText.style.textDecoration = "none";
+      todoText.style.color = "#888";
     }
+    todoItem.appendChild(todoText);
 
-    const removeButton = document.createElement("button");
-    removeButton.textContent = "Remover";
-    removeButton.onclick = () => deleteTodo(todo.id);
-
-    const completeButton = document.createElement("button");
-    completeButton.textContent = todo.completed ? "Desfazer" : "Concluir";
-    completeButton.onclick = () => checkTodo(todo.id);
-
-    item.appendChild(todoText);
-    item.appendChild(completeButton);
-    item.appendChild(removeButton);
-    
-    list.appendChild(item);
+    const statusButton = document.createElement("button");
+    statusButton.textContent = todo.done ? "Desfazer" : "Concluir";
+    statusButton.onclick = () => toggleTodoStatus(todo.id);
+    todoItem.appendChild(statusButton);
+    todoList.appendChild(todoItem);
   });
 }
+
+addButton.addEventListener("click", addTodo);
+todoInput.addEventListener("keypress", (e) => {
+  if (e.key === "Enter") addTodo();
+});
+
+allFilter.addEventListener("click", (e) => {
+  e.preventDefault();
+  renderTodos(TodoFilter.ALL);
+});
+
+doneFilter.addEventListener("click", (e) => {
+  e.preventDefault();
+  renderTodos(TodoFilter.DONE);
+});
+
+pendingFilter.addEventListener("click", (e) => {
+  e.preventDefault();
+  renderTodos(TodoFilter.PENDING);
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+  renderTodos();
+});
+
+document.querySelectorAll('.filters a').forEach(link => {
+  link.addEventListener('click', function() {
+    document.querySelectorAll('.filters a').forEach(l => l.classList.remove('active'));
+    this.classList.add('active');
+  });
+});
